@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vom Vibe Coding zum Mobility Coding — Die Geschichte hinter VibeAway</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --navy:    #0f172a;
+    --navyMid: #1e293b;
+    --panel:   #263148;
+    --blue:    #4f8ef7;
+    --blueL:   #93c5fd;
+    --mint:    #34d399;
+    --amber:   #fbbf24;
+    --white:   #f8fafc;
+    --muted:   #94a3b8;
+    --divider: #334155;
+    --max-w:   720px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* ── Lang switcher ── */
+  .lang-nav {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .lang-nav a {
+    text-decoration: none;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-nav a:hover { background: rgba(255,255,255,0.12); color: var(--white); }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    background: linear-gradient(160deg, #0a1628 0%, var(--navyMid) 100%);
+    border-bottom: 1px solid var(--divider);
+    padding: 80px 24px 60px;
+    text-align: center;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mint);
+    background: rgba(52,211,153,0.08);
+    border: 1px solid rgba(52,211,153,0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: 'Lora', serif;
+    font-size: clamp(28px, 5vw, 50px);
+    font-weight: 600;
+    line-height: 1.2;
+    max-width: 820px;
+    margin: 0 auto 20px;
+    color: var(--white);
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--blueL);
+    max-width: 600px;
+    margin: 0 auto 32px;
+    font-weight: 300;
+  }
+
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .meta span::before { content: '// '; color: var(--divider); }
+
+  /* ── Layout ── */
+  main {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  /* ── Typography ── */
+  h2 {
+    font-family: 'Lora', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--white);
+    margin: 64px 0 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .fase-intro {
+    font-size: 15px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 24px;
+    padding-left: 2px;
+  }
+
+  p { margin-bottom: 20px; color: #cbd5e1; }
+  p + p { margin-top: -4px; }
+
+  em { color: var(--white); font-style: italic; }
+  strong { color: var(--white); font-weight: 500; }
+  a { color: var(--blueL); text-decoration: underline; text-underline-offset: 3px; }
+
+  ul { margin: 0 0 20px 0; padding-left: 0; list-style: none; }
+  ul li { color: #cbd5e1; padding: 5px 0 5px 20px; position: relative; }
+  ul li::before { content: '—'; position: absolute; left: 0; color: var(--mint); font-weight: 500; }
+
+  /* ── Chat bubbles ── */
+  .chat { margin: 28px 0 32px; display: flex; flex-direction: column; gap: 10px; }
+
+  .chat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .bubble { display: flex; gap: 10px; max-width: 92%; }
+  .bubble.user { align-self: flex-end; flex-direction: row-reverse; }
+
+  .bubble-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; margin-top: 2px;
+  }
+
+  .bubble.user .bubble-avatar { background: rgba(79,142,247,0.2); border: 1px solid rgba(79,142,247,0.4); }
+  .bubble.bot  .bubble-avatar { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3); }
+
+  .bubble-text { padding: 12px 16px; border-radius: 12px; font-size: 14.5px; line-height: 1.6; }
+  .bubble.user .bubble-text { background: #162d50; border: 1px solid rgba(79,142,247,0.3); border-top-right-radius: 2px; color: var(--white); }
+  .bubble.bot  .bubble-text { background: var(--panel); border: 1px solid var(--divider); border-top-left-radius: 2px; color: var(--blueL); }
+
+  /* ── Code ── */
+  pre {
+    background: #0d1b2e; border: 1px solid var(--divider);
+    border-left: 3px solid var(--blue); border-radius: 6px;
+    padding: 20px 22px; overflow-x: auto; margin: 24px 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.65; color: #e2e8f0;
+  }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(--mint); background: rgba(52,211,153,0.08); padding: 2px 6px; border-radius: 4px; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* ── Callout ── */
+  .callout {
+    background: var(--navyMid); border: 1px solid var(--divider);
+    border-left: 3px solid var(--mint); border-radius: 6px;
+    padding: 16px 20px; margin: 28px 0; font-size: 14.5px; color: var(--blueL); line-height: 1.6;
+  }
+  .callout strong { color: var(--mint); display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Pull quote ── */
+  blockquote {
+    border-left: 3px solid var(--blue); margin: 32px 0; padding: 16px 24px;
+    font-family: 'Lora', serif; font-size: 20px; font-style: italic; color: var(--blueL); line-height: 1.5;
+  }
+
+  /* ── Architecture ── */
+  .arch { display: flex; align-items: center; margin: 28px 0; overflow-x: auto; padding: 4px 0 8px; gap: 0; }
+  .arch-node { background: var(--panel); border: 1px solid var(--divider); border-radius: 8px; padding: 12px 16px; text-align: center; flex-shrink: 0; min-width: 110px; }
+  .arch-node .icon { font-size: 20px; display: block; margin-bottom: 4px; }
+  .arch-node .name { font-size: 12px; font-weight: 500; color: var(--white); display: block; }
+  .arch-node .sub  { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .arch-arrow { color: var(--divider); font-size: 18px; padding: 0 8px; flex-shrink: 0; }
+
+  hr { border: none; border-top: 1px solid var(--divider); margin: 52px 0; }
+
+  /* ── Conclusion ── */
+  .conclusion {
+    background: linear-gradient(135deg, var(--navyMid), #162d50);
+    border: 1px solid rgba(79,142,247,0.2); border-radius: 12px;
+    padding: 36px 40px; margin-top: 64px;
+  }
+  .conclusion h2 { border: none; padding: 0; margin: 0 0 16px; font-size: 24px; }
+  .conclusion p { margin-bottom: 0; }
+
+  /* ── Epilogue ── */
+  .epilogue {
+    background: rgba(52,211,153,0.05); border: 1px solid rgba(52,211,153,0.15);
+    border-radius: 12px; padding: 28px 32px; margin-top: 28px;
+  }
+  .epilogue p { margin-bottom: 12px; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center; padding: 40px 24px;
+    border-top: 1px solid var(--divider);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+  }
+
+  @media (max-width: 600px) {
+    .arch-node { min-width: 90px; padding: 10px; }
+    h1 { font-size: 26px; }
+    .conclusion, .epilogue { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="lang-nav"><a href="vibeaway-article-en.html">EN</a><a href="vibeaway-article-it.html">IT</a><a href="vibeaway-article-fr.html">FR</a><a href="vibeaway-article-es.html">ES</a><a href="vibeaway-article-pt.html">PT</a><a href="vibeaway-article-zh.html">中文</a><a href="vibeaway-article-ja.html">日本語</a></div>
+  <div class="tag">VibeAway</div>
+  <h1>Vom Vibe Coding zum Mobility Coding</h1>
+  <p class="subtitle">VibeAway: ein Gespräch mit einer KI, um eine Remote-Schnittstelle für Claude Code und mehr zu bauen</p>
+  <div class="meta">
+    <span>Donato Mallozzi</span>
+    <span>Claude Code CLI · Telegram · Python</span>
+    <span>2026</span>
+  </div>
+</header>
+
+<main>
+
+<p>Wir alle nutzen Claude Code oder ähnliche KI-Entwicklungsassistenten immer häufiger. Es sind leistungsstarke Werkzeuge: Sie verstehen Code, lesen Dateien, ändern, refaktorisieren, schlagen vor.</p>
+
+<p>In der Praxis verbringt man leicht ganze Stunden damit, ihnen <em>bei der Arbeit zuzusehen</em>, vielleicht während man an Online-Meetings teilnimmt, und muss nur gelegentlich eingreifen, um einen neuen Prompt zu geben und das Ergebnis zu bewerten.</p>
+
+<p>Aber sie haben eine harte Grenze — sie erfordern, dass man da ist, vor dem Terminal, manchmal sogar mit leerem Blick auf den Bildschirm. 😶</p>
+
+<p>Eines Nachmittags wartete ich darauf, dass Claude eine ziemlich lange Analyse einer Legacy-Codebasis abschloss. Ich musste raus. Keine Möglichkeit zu wissen, wann es fertig sein würde, keine Möglichkeit, eine Nachfrage zu senden, keine Benachrichtigung.</p>
+
+<p>Ich klappte den Laptop zu und ging, wobei ich den Faden verlor.<br>
+Der Gedanke, der wohl jedem in einer ähnlichen Situation kommt, ist, dass es <em>wirklich schade ist, physisch vor dem PC sitzen zu müssen, wenn alles, was man braucht, nur das Bewerten der Ergebnisse und das Geben von Input ist, auch aus der Ferne</em>.</p>
+
+<p>Aus dieser Frustration wurde eine Frage:</p>
+
+<blockquote>
+  "Ich möchte mit Claude Code interagieren, auch wenn ich nicht an meinem PC bin. Können wir eine Schnittstelle entwickeln, die Befehle aus der Ferne empfängt, sowohl Textnachrichten als auch Audio?"
+</blockquote>
+
+<p>Was wie ein einfaches technisches Problem aussah -- eine Schnittstelle bereitzustellen -- erwies sich als viel reichhaltiger. In acht aufeinanderfolgenden Gesprächen mit Claude bauten wir etwas, das ich nicht geplant hatte: ein vollständiges System mit persistenten Sessions, asynchronen Aufgaben, Sprachtranskription, Echtzeit-Streaming und Sicherheitskontrollen. Dieser Artikel erzählt die Geschichte -- die Entscheidungen, die Umdenker und was ich dabei gelernt habe.</p>
+
+<p>Zunächst ein ehrlicher Hinweis: Es gibt bereits Open-Source-Projekte -- einige sehr populär, wie <strong>OpenClaw</strong> -- die dieses Problem angehen und viel mehr leisten, auch wenn ihr Fokus eher auf dem persönlichen Assistenten als auf dem Code-Assistenten im Vibe-Coding-Stil liegt. Ich habe sie mir angesehen. Der Punkt ist, dass viel mehr zu tun nicht das war, was ich suchte. Ich wollte etwas <em>Einfaches</em>, das ich Stück für Stück verstand, das ich kontrollieren, ändern und jederzeit abschalten konnte. In diesem Fall von Grund auf neu zu bauen war nicht, das Rad neu zu erfinden -- es war, ein Rad in der richtigen Größe zu wählen.</p>
+
+<hr>
+
+<h2>Die erste Entscheidung: Welcher Kanal?</h2>
+
+<p>Bevor auch nur eine einzige Zeile Code geschrieben wurde, gab es eine architektonische Entscheidung zu treffen: Wie gelangen die Prompts zum PC? Die naheliegenden Optionen waren eine REST-API, eine Webanwendung oder ein Messaging-Dienst.</p>
+
+<p><em>Wir</em> wählten <strong>Telegram</strong>, und nicht aus modischen Gründen. Der konkrete technische Grund ist, dass Telegram <em>long polling</em> verwendet -- der Bot ruft Telegram an, nicht umgekehrt. Das bedeutet null Netzwerkkonfiguration: kein Port-Forwarding, keine offenen Ports, funktioniert hinter jeder Unternehmens-Firewall. Für ein Tool, das auf meinem Heim-PC läuft, war das der Unterschied zwischen "funktioniert immer" und "hängt von den Router-Einstellungen ab".</p>
+
+<p>Darüber hinaus verarbeitet Telegram nativ Sprachnachrichten -- es komprimiert sie in OGG/Opus und macht sie über die API herunterladbar. Diese Funktion, die zunächst wie ein Bonus wirkte, erwies sich in vielen der folgenden Phasen als zentral.</p>
+
+<p>Die anfängliche Einrichtung war fast peinlich einfach: Einen Bot bei @BotFather erstellen, ein Token erhalten, und der PC beginnt, Nachrichten zu empfangen.</p>
+
+<div class="arch">
+  <div class="arch-node">
+    <span class="icon">📱</span>
+    <span class="name">Smartphone</span>
+    <span class="sub">Telegram App</span>
+  </div>
+  <div class="arch-arrow">→</div>
+  <div class="arch-node">
+    <span class="icon">☁️</span>
+    <span class="name">Telegram API</span>
+    <span class="sub">long polling</span>
+  </div>
+  <div class="arch-arrow">→</div>
+  <div class="arch-node">
+    <span class="icon">🤖</span>
+    <span class="name">bot.py</span>
+    <span class="sub">lokaler PC</span>
+  </div>
+  <div class="arch-arrow">→</div>
+  <div class="arch-node">
+    <span class="icon">⚡</span>
+    <span class="name">Claude CLI</span>
+    <span class="sub">--print</span>
+  </div>
+</div>
+
+<hr>
+
+<h2>Phase 1 — Ein Prototyp in wenigen Dateien</h2>
+
+<div class="chat">
+  <span class="chat-label">Das Gespräch</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">Ich möchte mit Claude Code interagieren, auch wenn ich nicht an meinem PC bin, sowohl mit Text- als auch mit Sprachnachrichten.</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">Telegram ist perfekt für einen Prototyp: long polling (kein Port-Forwarding), native Sprachnachrichten, hervorragende mobile App. Einrichtung in 10 Minuten.</div>
+  </div>
+</div>
+
+<p>Der erste Prototyp war bewusst minimal. Drei Python-Dateien, eine Hauptabhängigkeit (<code>python-telegram-bot</code>), und eine klare Vorstellung davon, was er tun sollte: eine Nachricht empfangen, sie an <code>claude --print</code> übergeben und mit der Ausgabe antworten.</p>
+
+<p>Das größte Risiko bei dieser Art von Projekt ist, alles auf einmal machen zu wollen. Ich widerstand. Der Prototyp tat genau eine Sache: eine Telegram-Nachricht in einen Claude-Code-Prompt umwandeln. Kein Session-Management, keine Hintergrundaufgaben, keine Einstellungen. Nur die grundlegende Schleife.</p>
+
+<p>Eine Entscheidung wurde allerdings sofort getroffen und war nicht verhandelbar: die <strong>Benutzer-Whitelist</strong>. Claude Code hat vollen Zugriff auf das Dateisystem meines PCs. Ein Telegram-Bot ohne Zugriffskontrolle ist eine offene Tür für jeden, der den Namen des Bots kennt. Die Telegram-Benutzer-ID wird von Telegrams Servern vergeben und kann clientseitig nicht gefälscht werden -- eine einfache, aber solide Barriere.</p>
+
+<p>Sprache funktionierte über Whisper: Der Bot lud die Audiodatei herunter, transkribierte sie, zeigte die Transkription im Chat an und sendete den Text dann an Claude. Dieses "Transkription anzeigen" war ein kleines, aber wichtiges UX-Detail: Der Benutzer versteht sofort, was der Bot gehört hat, und kann es korrigieren, falls Whisper etwas falsch verstanden hat.</p>
+
+<p>Am Ende der ersten Stunde hatte ich etwas, das <em>tatsächlich funktionierte</em>. Ich konnte eine Nachricht von meinem Smartphone senden und die Antwort von Claude Code empfangen. Die Zufriedenheit über diesen ersten End-to-End-Test ist schwer zu beschreiben.</p>
+
+<p>Und an diesem Punkt kann man es sich schon vorstellen: Ich aktivierte den Bot-Dienst auf meinem PC und ging los, wobei ich den Bot weiterhin aus der Ferne verbesserte. Mit jeder neuen Funktion aktualisierte Claude CLI den Code auf meinem PC, führte die Tests aus und startete den Dienst neu, um die Änderungen sofort verfügbar zu machen.</p>
+
+<hr>
+
+<h2>Phase 2 — Das Session-Problem</h2>
+<p class="fase-intro">Ein grundlegender Aspekt wurde sofort klar: Die Möglichkeit, sich mit einer zuvor geöffneten Session <em>erneut zu verbinden</em> und sie unter Nutzung ihres Kontexts fortzusetzen, war unverzichtbar.</p>
+
+<div class="chat">
+  <span class="chat-label">Das Gespräch</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">Der Listenbefehl zeigt verfügbare Sessions (ID und Titel) an, und der Fortsetzen-Befehl lässt mich jede davon wieder aktivieren, auch nach Titel.</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">Ich füge session_manager.py hinzu, das die JSONL-Dateien aus ~/.claude/projects/ liest und ID, Titel und Öffnungsstatus über /proc extrahiert.</div>
+  </div>
+</div>
+
+<p>Nach ein paar Stunden Nutzung stieß ich auf die nächste Grenze. Claude Code speichert jede Konversation als JSONL-Datei auf der Festplatte, und <code>--continue</code> setzt <em>die letzte</em> Session fort. Aber ich arbeite an verschiedenen Projekten -- und ich möchte oft eine bestimmte Konversation fortsetzen, nicht unbedingt die letzte.</p>
+
+<p>Die Frage, die ich Claude stellte, war sehr präzise: Ich möchte Sessions auflisten und eine nach Titel oder Teilkennung fortsetzen können. Die Antwort erforderte ein Verständnis dafür, wie Claude Code Daten auf der Festplatte organisiert -- eine undokumentierte Verzeichnisstruktur -- und den Bau eines Readers, der nützliche Informationen daraus extrahierte.</p>
+
+<p>Der interessanteste Teil dieser Phase war die Erkennung <em>aktuell geöffneter</em> Sessions. Claude Code hinterlässt keine Lock-Dateien. Die einzige Möglichkeit zu wissen, ob eine Session geöffnet ist, besteht darin, laufende Prozesse zu überprüfen -- unter Linux durch Inspektion von <code>/proc/*/cmdline</code>. Wenn die cmdline <code>--resume &lt;uuid&gt;</code> enthält, ist der Abgleich exakt und sicher. Falls nicht, wird die zuletzt geänderte Session als "wahrscheinlich offen" markiert -- Transparenz über Unsicherheit statt einer Gewissheit vorzutäuschen, die nicht existiert.</p>
+
+<hr>
+
+<h2>Phase 3 — Der asynchrone Wendepunkt</h2>
+<p class="fase-intro">An diesem Punkt stellte sich die Frage: Warum sich auf synchrone Anfragen beschränken? Mit dem <em>Task</em>-Befehl möchte ich eine lange Berechnung starten und mit anderen interaktiven Sessions fortfahren.</p>
+
+<div class="chat">
+  <span class="chat-label">Das Gespräch</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">Ich brauche Fortschrittsverfolgung -- ich möchte benachrichtigt werden, sobald Claude eine lang laufende Aufgabe in einer aktuellen Session abgeschlossen hat.</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">Architekturänderung: subprocess.run() → asyncio.create_subprocess_exec(). Der Bot bleibt reaktionsfähig und sendet eine Push-Benachrichtigung, wenn er fertig ist.</div>
+  </div>
+</div>
+
+<p>Dies war das bedeutendste Umdenken des gesamten Projekts.</p>
+
+<p>Der ursprüngliche Prototyp verwendete <code>subprocess.run()</code> -- per Definition blockierend. Während Claude arbeitete, war der Bot still: Er konnte nicht auf andere Nachrichten antworten, kein <code>/cancel</code> empfangen, nichts tun. Bei kurzen Antworten fällt das nicht auf. Bei Aufgaben, die Minuten dauern, ist es ein ernstes Problem.</p>
+
+<p>Die Migration zu <code>asyncio.create_subprocess_exec()</code> änderte die Natur des Systems. Der Bot wurde wirklich asynchron: Man kann eine lange Aufgabe starten, den Bot normal weiternutzen und eine Push-Benachrichtigung erhalten, wenn Claude fertig ist -- mit der vollständigen Ausgabe in der Nachricht. Man kann auch mehrere Aufgaben parallel starten, sie überwachen und eine bestimmte abbrechen.</p>
+
+<p>Aber es muss auch möglich sein, eine lang laufende Aufgabe abzubrechen, wenn man merkt, dass man wichtige Informationen im Prompt vergessen hat. Der Abbruch war ein heikles Detail: Sowohl der Betriebssystem-Prozess (<code>proc.kill()</code>) als auch die asyncio-Aufgabe (<code>asyncio_task.cancel()</code>) müssen beendet werden, und die Fehlerweiterleitung muss so gehandhabt werden, dass der Benutzer auch bei einem Abbruch eine Bestätigungsbenachrichtigung erhält.</p>
+
+<p>Rückblickend ist dies die Phase, die den Bot von "nützlichem Widget" zu "ernsthaftem Werkzeug" transformierte.</p>
+
+<hr>
+
+<h2>Phase 4 — Befehlen eine Stimme geben</h2>
+
+<div class="chat">
+  <span class="chat-label">Das Gespräch</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">Ich brauche eine Möglichkeit, /.. Befehle per Sprachnachricht aufzurufen, nicht nur als freie Prompts.</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">Ich verwende Claude Haiku als Klassifikator: transkribieren → strukturiertes JSON → Weiterleitung an denselben Handler wie der Textbefehl. ~0,5 Sekunden Latenz.</div>
+  </div>
+</div>
+
+<p>Sprachnachrichten funktionierten gut als freie Prompts -- man sagt etwas, Claude antwortet. Aber bald wollte ich mehr: "Zeig mir die laufenden Aufgaben" sagen und den Bot verstehen lassen, dass ich nach einer Liste fragte, nicht nach einem Prompt für Claude Code.</p>
+
+<p>Der erste Impuls war, ein Keyword-Matching-System zu bauen. "Task" → <code>/tasks</code>, "Abbrechen" → <code>/cancel</code>. Einfach zu implementieren, unmöglich zu pflegen, per Definition fragil.</p>
+
+<p>Die eleganteste Lösung war, ein LLM zur Klassifizierung der Absicht zu verwenden -- konkret Claude Haiku, das schnellste und wirtschaftlichste Modell. Ein einziger API-Aufruf, ein System-Prompt, der die verfügbaren Befehle beschreibt, und das Modell antwortet mit strukturiertem JSON, das angibt, welcher Befehl mit welchen Argumenten ausgeführt werden soll. Etwa eine halbe Sekunde zusätzliche Latenz, null Wartungsaufwand.</p>
+
+<p>Was mich an dieser Entscheidung beeindruckte, ist eine subtile Ironie: Ich verwende eine KI, um Sprachbefehle zu interpretieren, die dann an eine andere KI weitergegeben werden. Aber es funktioniert -- und funktioniert gut, selbst bei mehrdeutigen Formulierungen und umgangssprachlichen Konstruktionen.</p>
+
+<p>Ein wichtiges Designdetail: Wenn der Haiku-Aufruf aus irgendeinem Grund fehlschlägt (Rate-Limit, Netzwerkfehler), blockiert der Bot nicht. Die Transkription wird direkt als freier Prompt an Claude Code weitergegeben. Aus Benutzersicht völlige Stille, Dienstkontinuität.</p>
+
+<hr>
+
+<h2>Phase 5 — Die Stille während des Wartens</h2>
+<p class="fase-intro">Bisher lief alles gut, aber alles fühlte sich zu <em>losgelöst</em> an -- ich hatte kein Feedback von meinem Assistenten während seiner Verarbeitung.</p>
+
+<div class="chat">
+  <span class="chat-label">Das Gespräch</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">Vorhin hast du JSON-Streaming vorgeschlagen -- was genau meinst du damit?</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">claude --output-format stream-json gibt JSONL-Events in Echtzeit aus. Ich bearbeite die Telegram-Nachricht alle N Sekunden mit dem Teiltext + Cursor ▌.</div>
+  </div>
+</div>
+
+<p>Es gibt eine Spannung im Design jedes Wartesystems: Der Benutzer weiß nicht, ob etwas passiert oder ob etwas kaputtgegangen ist. Ein "⏳ Claude verarbeitet..." das zwei Minuten lang eingefroren ist, erzeugt Angst.</p>
+
+<p>Claude Code unterstützt ein <code>--output-format stream-json</code>-Flag, das JSONL-Events ausgibt, während es verarbeitet, statt auf den Abschluss zu warten. Telegram unterstützt kein zeichenweises Streaming, erlaubt aber das Bearbeiten einer bereits gesendeten Nachricht. Die Lösung war, beides zu kombinieren: Teiltext aus JSON-Events akkumulieren und die Telegram-Nachricht alle zwei Sekunden mit dem aktuellen Text und einem ▌-Cursor aktualisieren.</p>
+
+<p>Das Throttling war notwendig, um die Rate-Limits von Telegram nicht zu überschreiten (etwa 20 Bearbeitungen pro Minute pro Nachricht), erwies sich aber auch als UX-Verbesserung: Aktualisierungen alle zwei Sekunden sind lesbar, alle 200ms wären desorientierend.</p>
+
+<p>Ein kleines Detail, das mir gefiel: der ▌-Cursor am Ende des Teiltexts. Er ist technisch nicht informativ -- er sagt nur "schreibt noch" -- aber er verwandelt das Warten von Angst in Vorfreude.</p>
+
+<div class="callout">
+  <strong>Technischer Hinweis</strong>
+  Hintergrundaufgaben (<code>/task</code>) verwenden bewusst den Nicht-Streaming-Modus. Man wartet ohnehin auf die endgültige Benachrichtigung -- man schaut nicht in Echtzeit auf den Bildschirm.
+</div>
+
+<hr>
+
+<h2>Phasen 6 + 7 — Anhänge und Einstellungen: Die Details, die den Unterschied machen</h2>
+<p class="fase-intro">An diesem Punkt brauchte ich die Möglichkeit, vom Bot geänderte oder erzeugte Dateien <em>anzusehen</em> -- ich brauchte eine Möglichkeit, sie auf meinem Smartphone zu öffnen.</p>
+
+<div class="chat">
+  <span class="chat-label">Das Gespräch</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">Ein /sendme-Befehl zum Empfangen von Dateien als Anhänge wäre nützlich. Und ich möchte das aktuelle Verzeichnis und die Streaming-Frequenz festlegen, bevor ich Befehle starte.</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">Zwei Ergänzungen: /sendme mit automatischem ZIP für mehrere Dateien + deklaratives SETTINGS_SCHEMA mit /set und /settings. Ein neuer Parameter = eine Zeile im Dictionary.</div>
+  </div>
+</div>
+
+<p>Diese beiden Phasen entstanden aus praktischen Bedürfnissen, die sich aus der Nutzung ergaben.</p>
+
+<p>Das erste: Ich bat Claude oft, Dateien, Berichte oder Skripte zu generieren -- und hatte dann keine einfache Möglichkeit, sie von meinem Smartphone abzurufen. Der Anhang-Befehl erwies sich als reichhaltiger als erwartet: Eine einzelne Datei kommt als direkter Anhang, aber wenn ein Glob-Muster verwendet wird (<code>src/*.py</code>), erstellt der Bot ein ZIP im Arbeitsspeicher -- keine temporären Dateien auf der Festplatte -- und sendet es als Archiv. Die automatische Namensbereinigung war ein praktisches Detail: <code>src/*.py</code> wird zu <code>src_py.zip</code>, Sonderzeichen inklusive.</p>
+
+<p>Das zweite: Ich wollte das Verhalten des Bots konfigurieren, ohne die <code>.env</code>-Datei bearbeiten und den Prozess neu starten zu müssen. Arbeitsverzeichnis, Streaming-Frequenz, Timeout, Transkriptionssprache. Die Designentscheidung hier war die Verwendung eines deklarativen Schemas: Das Hinzufügen eines neuen Parameters erfordert einen einzigen Eintrag in einem Dictionary, und die gesamte Validierungslogik, Panel-Darstellung und Standardwert-Zurücksetzung wird automatisch gehandhabt. Diese Art von Entscheidung -- in eine Abstraktion zu investieren statt Copy-Paste -- zahlt sich schon bei der zweiten Änderung aus.</p>
+
+<hr>
+
+<h2>Phase 8 — Die unsichtbare Sicherheit</h2>
+
+<div class="chat">
+  <span class="chat-label">Das Gespräch</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">Lass uns eine Sicherheitsüberprüfung für die Transkription hinzufügen: Wenn sie gefährliche Begriffe enthält, fragt der Bot vor der Weitergabe an Claude um Bestätigung.</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">Regex-Muster für 6 Risikokategorien. Bei Auslösung zeige ich Telegram-Inline-Buttons ✅/❌. Die Payload wird in user_data gespeichert, bis getippt wird.</div>
+  </div>
+</div>
+
+<p>Das letzte Problem war subtil. Textnachrichten tippe ich bewusst -- es ist schwer, versehentlich "lösche alles" zu sagen. Sprachnachrichten sind anders: Whisper könnte unerwartet transkribieren, oder ich könnte in einer lauten Umgebung sprechen, mit unvorhersehbaren Ergebnissen. Da Claude Code Zugriff auf das Dateisystem hat, könnte ein Transkriptionsfehler bei einem destruktiven Befehl echten Schaden anrichten.</p>
+
+<p>Die Lösung war ein Filter für riskante Musterkategorien -- Dateilöschung, privilegierte Befehle, unerwartete Netzwerkoperationen, beliebige Shell-Ausführung, Zugriff auf Anmeldedaten -- und eine explizite Bestätigungsanfrage über Telegram-Inline-Buttons, wenn eines dieser Muster erkannt wird.</p>
+
+<p>Der Designaspekt, der mich überzeugte, ist, dass die Bestätigung <em>vor</em> der Ausführung kommt, mit sichtbarer Transkription. Der Benutzer sieht genau, was der Bot verstanden hat, und entscheidet, ob er fortfahren möchte. Es ist kein Hindernis -- es ist Transparenz.</p>
+
+<p>Die Payload (Transkription + bereits klassifizierte Absicht) wird temporär gespeichert, und der Button ruft sie beim Antippen ab. Keine erneute Verarbeitung, keine zusätzlichen API-Aufrufe.</p>
+
+<hr>
+
+<h2>Was ich gelernt habe</h2>
+
+<p>Wenn ich auf die acht Phasen zurückblicke, erscheinen einige Dinge jetzt klarer als zu Beginn.</p>
+
+<p><strong>Mit etwas zu beginnen, das funktioniert, ist wichtiger als mit etwas Vollständigem zu beginnen.</strong> Der Prototyp des ersten Tages war fast lächerlich einfach. Aber er <em>funktionierte</em>, und diese direkte Erfahrung lenkte jede folgende Entscheidung auf eine Weise, die keine Vorausplanung hätte leisten können.</p>
+
+<p><strong>Kanäle sind genauso wichtig wie Inhalte.</strong> Die Wahl von Telegram war nicht ästhetisch -- sie löste drei Probleme auf einmal: Authentifizierung, Transport ohne Netzwerkkonfiguration und native Audio-Unterstützung. Den falschen Kanal zu wählen hätte alles andere viel schwieriger gemacht.</p>
+
+<p><strong>Die besten Features entstehen aus echten Bedürfnissen -- oder echten Frustrationen 🙂</strong> Echtzeit-Streaming entstand aus der peinlichen Stille während des Wartens. Sessions entstanden aus der Verwirrung zwischen verschiedenen Projekten. Der Sicherheits-Checker entstand aus dem Bewusstsein, dass Sprache eine weniger kontrollierte Eingabe ist als Text. Keines dieser Bedürfnisse war offensichtlich, bevor das System genutzt wurde.</p>
+
+<p><strong>Mit einer KI zu bauen, um eine KI zu steuern, hat etwas Zirkuläres und Produktives.</strong> Der gesamte Code wurde in Gesprächen mit Claude Code entwickelt, das in derselben Session lief, die wir erweiterten. Es gibt eine Rückkopplungsschleife darin, die Entscheidungen beschleunigt und einen zwingt, präzise zu formulieren, was man will.</p>
+
+<div class="conclusion">
+  <h2>Zusammenfassung</h2>
+  <p>In acht Gesprächen, die aus einer einzigen Frustration heraus begannen, bauten wir etwas, das ich nicht zu bauen geplant hatte. Das Ergebnis ist ein System, das ein Terminal-Werkzeug nimmt und es überall zugänglich macht -- mit Text, Sprache, Anhängen, persistenten Sessions, Echtzeit-Updates und einem angemessenen Sicherheitsniveau.</p>
+  <p style="margin-top:16px;">Das Interessanteste ist jedoch nicht das fertige System. Es ist der Prozess: wie jede Iteration das nächste Problem offenbarte, wie architektonische Entscheidungen, die aus praktischen Gründen getroffen wurden, sich im Nachhinein als richtig erwiesen, und wie die Zusammenarbeit mit einem KI-Agenten -- in derselben Session, in der wir das Tool bauten -- die Art veränderte, wie ich über das Problem nachdachte.</p>
+</div>
+
+<div class="epilogue">
+  <p>Ab diesem Punkt war es <strong>schwer aufzuhören</strong>. An diesem Abend machte ich von der Couch aus weiter. Jetzt hat mein Assistent auch:</p>
+  <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 20px;">
+    <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.18);border-radius:8px;padding:12px 16px;">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px;">🔊</span>
+      <div>
+        <div style="color:var(--white);font-weight:500;font-size:14.5px;">Text-to-Speech</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px;">Die Antwort des Bots kommt als Sprachnachricht, wenn der Prompt ein Audio war</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.18);border-radius:8px;padding:12px 16px;">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px;">🖥️</span>
+      <div>
+        <div style="color:var(--white);font-weight:500;font-size:14.5px;">Screenshot auf Abruf</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px;">Sendet einen Screenshot des gesamten Bildschirms oder eines bestimmten Fensters</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.18);border-radius:8px;padding:12px 16px;">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px;">📹</span>
+      <div>
+        <div style="color:var(--white);font-weight:500;font-size:14.5px;">Webcam</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px;">Nimmt ein Video mit der Webcam des PCs auf und sendet es mir</div>
+      </div>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:15px;margin-bottom:0;">Einige Hilfsbefehle wurden der Einfachheit halber fest eingebaut, aber in der Praxis kann ich mit dem richtigen Prompt alle Fähigkeiten von Claude Code CLI nutzen.</p>
+</div>
+
+</main>
+
+<footer>
+  <p>Gebaut mit Claude Code · Donato Mallozzi · 2026</p>
+</footer>
+
+</body>
+</html>

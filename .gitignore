@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.log
+*.bak
+*.egg-info/
+dist/
+build/
+bot.lock
+logs/
+.playwright-mcp/

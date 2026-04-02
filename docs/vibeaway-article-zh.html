@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从 Vibe Coding 到 Mobility Coding — VibeAway 背后的故事</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --navy:    #0f172a;
+    --navyMid: #1e293b;
+    --panel:   #263148;
+    --blue:    #4f8ef7;
+    --blueL:   #93c5fd;
+    --mint:    #34d399;
+    --amber:   #fbbf24;
+    --white:   #f8fafc;
+    --muted:   #94a3b8;
+    --divider: #334155;
+    --max-w:   720px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* ── Lang switcher ── */
+  .lang-nav {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .lang-nav a {
+    text-decoration: none;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-nav a:hover { background: rgba(255,255,255,0.12); color: var(--white); }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    background: linear-gradient(160deg, #0a1628 0%, var(--navyMid) 100%);
+    border-bottom: 1px solid var(--divider);
+    padding: 80px 24px 60px;
+    text-align: center;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mint);
+    background: rgba(52,211,153,0.08);
+    border: 1px solid rgba(52,211,153,0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: 'Lora', serif;
+    font-size: clamp(28px, 5vw, 50px);
+    font-weight: 600;
+    line-height: 1.2;
+    max-width: 820px;
+    margin: 0 auto 20px;
+    color: var(--white);
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--blueL);
+    max-width: 600px;
+    margin: 0 auto 32px;
+    font-weight: 300;
+  }
+
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .meta span::before { content: '// '; color: var(--divider); }
+
+  /* ── Layout ── */
+  main {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  /* ── Typography ── */
+  h2 {
+    font-family: 'Lora', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--white);
+    margin: 64px 0 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .fase-intro {
+    font-size: 15px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 24px;
+    padding-left: 2px;
+  }
+
+  p { margin-bottom: 20px; color: #cbd5e1; }
+  p + p { margin-top: -4px; }
+
+  em { color: var(--white); font-style: italic; }
+  strong { color: var(--white); font-weight: 500; }
+  a { color: var(--blueL); text-decoration: underline; text-underline-offset: 3px; }
+
+  ul { margin: 0 0 20px 0; padding-left: 0; list-style: none; }
+  ul li { color: #cbd5e1; padding: 5px 0 5px 20px; position: relative; }
+  ul li::before { content: '—'; position: absolute; left: 0; color: var(--mint); font-weight: 500; }
+
+  /* ── Chat bubbles ── */
+  .chat { margin: 28px 0 32px; display: flex; flex-direction: column; gap: 10px; }
+
+  .chat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .bubble { display: flex; gap: 10px; max-width: 92%; }
+  .bubble.user { align-self: flex-end; flex-direction: row-reverse; }
+
+  .bubble-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; margin-top: 2px;
+  }
+
+  .bubble.user .bubble-avatar { background: rgba(79,142,247,0.2); border: 1px solid rgba(79,142,247,0.4); }
+  .bubble.bot  .bubble-avatar { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3); }
+
+  .bubble-text { padding: 12px 16px; border-radius: 12px; font-size: 14.5px; line-height: 1.6; }
+  .bubble.user .bubble-text { background: #162d50; border: 1px solid rgba(79,142,247,0.3); border-top-right-radius: 2px; color: var(--white); }
+  .bubble.bot  .bubble-text { background: var(--panel); border: 1px solid var(--divider); border-top-left-radius: 2px; color: var(--blueL); }
+
+  /* ── Code ── */
+  pre {
+    background: #0d1b2e; border: 1px solid var(--divider);
+    border-left: 3px solid var(--blue); border-radius: 6px;
+    padding: 20px 22px; overflow-x: auto; margin: 24px 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.65; color: #e2e8f0;
+  }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(--mint); background: rgba(52,211,153,0.08); padding: 2px 6px; border-radius: 4px; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* ── Callout ── */
+  .callout {
+    background: var(--navyMid); border: 1px solid var(--divider);
+    border-left: 3px solid var(--mint); border-radius: 6px;
+    padding: 16px 20px; margin: 28px 0; font-size: 14.5px; color: var(--blueL); line-height: 1.6;
+  }
+  .callout strong { color: var(--mint); display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Pull quote ── */
+  blockquote {
+    border-left: 3px solid var(--blue); margin: 32px 0; padding: 16px 24px;
+    font-family: 'Lora', serif; font-size: 20px; font-style: italic; color: var(--blueL); line-height: 1.5;
+  }
+
+  /* ── Architecture ── */
+  .arch { display: flex; align-items: center; margin: 28px 0; overflow-x: auto; padding: 4px 0 8px; gap: 0; }
+  .arch-node { background: var(--panel); border: 1px solid var(--divider); border-radius: 8px; padding: 12px 16px; text-align: center; flex-shrink: 0; min-width: 110px; }
+  .arch-node .icon { font-size: 20px; display: block; margin-bottom: 4px; }
+  .arch-node .name { font-size: 12px; font-weight: 500; color: var(--white); display: block; }
+  .arch-node .sub  { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .arch-arrow { color: var(--divider); font-size: 18px; padding: 0 8px; flex-shrink: 0; }
+
+  hr { border: none; border-top: 1px solid var(--divider); margin: 52px 0; }
+
+  /* ── Conclusion ── */
+  .conclusion {
+    background: linear-gradient(135deg, var(--navyMid), #162d50);
+    border: 1px solid rgba(79,142,247,0.2); border-radius: 12px;
+    padding: 36px 40px; margin-top: 64px;
+  }
+  .conclusion h2 { border: none; padding: 0; margin: 0 0 16px; font-size: 24px; }
+  .conclusion p { margin-bottom: 0; }
+
+  /* ── Epilogue ── */
+  .epilogue {
+    background: rgba(52,211,153,0.05); border: 1px solid rgba(52,211,153,0.15);
+    border-radius: 12px; padding: 28px 32px; margin-top: 28px;
+  }
+  .epilogue p { margin-bottom: 12px; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center; padding: 40px 24px;
+    border-top: 1px solid var(--divider);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+  }
+
+  @media (max-width: 600px) {
+    .arch-node { min-width: 90px; padding: 10px; }
+    h1 { font-size: 26px; }
+    .conclusion, .epilogue { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="lang-nav"><a href="vibeaway-article-en.html">EN</a><a href="vibeaway-article-it.html">IT</a><a href="vibeaway-article-fr.html">FR</a><a href="vibeaway-article-de.html">DE</a><a href="vibeaway-article-es.html">ES</a><a href="vibeaway-article-pt.html">PT</a><a href="vibeaway-article-ja.html">日本語</a></div>
+  <div class="tag">VibeAway</div>
+  <h1>从 Vibe Coding 到 Mobility Coding</h1>
+  <p class="subtitle">VibeAway：与 AI 对话，构建 Claude Code 及更多工具的远程接口</p>
+  <div class="meta">
+    <span>Donato Mallozzi</span>
+    <span>Claude Code CLI · Telegram · Python</span>
+    <span>2026</span>
+  </div>
+</header>
+
+<main>
+
+<p>我们越来越多地使用 Claude Code 或类似的 AI 开发助手。这些都是强大的工具：它们理解代码、读取文件、修改、重构、提出建议。</p>
+
+<p>实际上，你很容易花上几个小时<em>看着它们替你工作</em>，也许一边参加线上会议，只需要偶尔介入提供新的提示词并评估结果。</p>
+
+<p>但它们有一个硬性限制——需要你坐在终端前面，有时甚至是一脸茫然地盯着屏幕。😶</p>
+
+<p>一天下午，我正在等 Claude 完成对一个遗留代码库的较长分析。我需要出门。无法知道它什么时候完成，无法发送后续指令，没有通知。</p>
+
+<p>我合上笔记本电脑就走了，丢失了思路。<br>
+我相信任何人在类似情况下都会自然而然地想到：<em>必须坐在电脑前才能操作，实在太可惜了——明明只需要评估结果、提供输入，哪怕远程也能做到</em>。</p>
+
+<p>那份挫败感变成了一个问题：</p>
+
+<blockquote>
+  "我想在不在电脑前的时候也能和 Claude Code 交互。我们能不能开发一个远程接收命令的接口，既支持文字消息也支持语音？"
+</blockquote>
+
+<p>看似简单的技术问题——暴露一个接口——实际上远比想象中丰富。在与 Claude 的八次连续对话中，我们构建了一个我原本没有计划的东西：一个完整的系统，具备持久化会话、异步任务、语音转写、实时流式输出和安全控制。这篇文章讲述了这个故事——做出的选择、反复的思考，以及我一路走来学到的东西。</p>
+
+<p>首先坦诚说明一点：已经有一些开源项目——其中一些非常流行，比如 <strong>OpenClaw</strong>——已经在解决这个问题甚至做得更多，尽管它们的重点更多在个人助手而非 vibe coding 风格的代码助手。我研究过它们。关键在于，做更多并不是我想要的。我想要的是一些<em>简单</em>的东西，我能逐一理解每个部分，能够控制、修改并随时关闭。在这种情况下，从零开始构建不是重新发明轮子——而是选择一个大小合适的轮子。</p>
+
+<hr>
+
+<h2>第一个选择：哪个渠道？</h2>
+
+<p>在写第一行代码之前，有一个架构决策要做：如何将提示词传送到电脑？显而易见的选项是 REST API、Web 应用或某种即时通讯服务。</p>
+
+<p><em>我们</em>选择了 <strong>Telegram</strong>，并非为了赶时髦。具体的技术原因是 Telegram 使用 <em>long polling</em>——是机器人主动调用 Telegram，而不是反过来。这意味着零网络配置：不需要端口转发，不需要开放端口，在任何企业防火墙后面都能工作。对于一个运行在家用电脑上的工具来说，这是"始终可用"和"取决于路由器设置"之间的区别。</p>
+
+<p>此外，Telegram 原生支持语音消息——它将语音压缩为 OGG/Opus 格式，并通过 API 提供下载。这个功能起初看起来只是一个额外的好处，后来却在许多后续阶段变得至关重要。</p>
+
+<p>初始设置简单得几乎令人尴尬：在 @BotFather 上创建一个机器人，获取一个 token，电脑就开始接收消息了。</p>
+
+<div class="arch">
+  <div class="arch-node">
+    <span class="icon">📱</span>
+    <span class="name">智能手机</span>
+    <span class="sub">Telegram App</span>
+  </div>
+  <div class="arch-arrow">→</div>
+  <div class="arch-node">
+    <span class="icon">☁️</span>
+    <span class="name">Telegram API</span>
+    <span class="sub">long polling</span>
+  </div>
+  <div class="arch-arrow">→</div>
+  <div class="arch-node">
+    <span class="icon">🤖</span>
+    <span class="name">bot.py</span>
+    <span class="sub">本地电脑</span>
+  </div>
+  <div class="arch-arrow">→</div>
+  <div class="arch-node">
+    <span class="icon">⚡</span>
+    <span class="name">Claude CLI</span>
+    <span class="sub">--print</span>
+  </div>
+</div>
+
+<hr>
+
+<h2>阶段一 — 几个文件的原型</h2>
+
+<div class="chat">
+  <span class="chat-label">对话</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">我想在不在电脑前的时候也能和 Claude Code 交互，支持文字和语音消息。</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">Telegram 非常适合做原型：long polling（无需端口转发）、原生语音消息、优秀的移动应用。10 分钟即可搭建完成。</div>
+  </div>
+</div>
+
+<p>第一个原型刻意保持最简。三个 Python 文件，一个主要依赖（<code>python-telegram-bot</code>），以及一个明确的目标：接收消息，传递给 <code>claude --print</code>，然后回复输出结果。</p>
+
+<p>这类项目最大的风险是想一次做完所有事情。我忍住了。原型只做了一件事：把 Telegram 消息转化为 Claude Code 提示词。没有会话管理，没有后台任务，没有设置。只有最基本的循环。</p>
+
+<p>不过有一个选择从一开始就是不可妥协的：<strong>用户白名单</strong>。Claude Code 拥有对我电脑文件系统的完全访问权限。一个没有访问控制的 Telegram 机器人就是一扇对任何知道机器人名字的人敞开的大门。Telegram 用户 ID 由 Telegram 服务器分配，客户端无法伪造——一个简单但可靠的屏障。</p>
+
+<p>语音功能通过 Whisper 实现：机器人下载音频文件，转录文字，在聊天中显示转录内容，然后将文本发送给 Claude。"显示转录内容"是一个小但重要的用户体验细节：用户可以立即看到机器人听到了什么，如果 Whisper 误解了可以及时纠正。</p>
+
+<p>第一个小时结束时，我已经有了一个<em>真正能用</em>的东西。我可以从智能手机发送消息，并收到 Claude Code 的回复。第一次端到端测试成功的那种满足感很难用语言描述。</p>
+
+<p>接下来你可以想象到：我在电脑上激活了机器人服务然后出门了，继续远程改进机器人。每开发一个新功能，Claude CLI 就更新我电脑上的代码，运行测试并重启服务，使更改立即生效。</p>
+
+<hr>
+
+<h2>阶段二 — 会话问题</h2>
+<p class="fase-intro">一个基本需求立即变得明显：能够<em>重新连接</em>到之前打开的会话并利用其上下文继续工作至关重要。</p>
+
+<div class="chat">
+  <span class="chat-label">对话</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">列表命令显示可用的会话（ID 和标题），恢复命令让我可以重新激活其中任何一个，甚至可以通过标题恢复。</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">我将添加 session_manager.py，它读取 ~/.claude/projects/ 中的 JSONL 文件，并通过 /proc 提取 ID、标题和打开状态。</div>
+  </div>
+</div>
+
+<p>使用了几个小时后，我遇到了下一个限制。Claude Code 将每次对话保存为磁盘上的 JSONL 文件，<code>--continue</code> 会恢复<em>最后一个</em>会话。但我在不同的项目上工作——而且我经常想恢复某个特定的对话，不一定是最后一个。</p>
+
+<p>我向 Claude 提出的问题非常精确：我想能够列出会话并通过标题或部分 ID 来恢复某个会话。回答这个问题需要理解 Claude Code 如何在磁盘上组织数据——一个未文档化的目录结构——并构建一个能从中提取有用信息的读取器。</p>
+
+<p>这个阶段最有趣的部分是检测<em>当前打开的</em>会话。Claude Code 不会留下锁文件。唯一知道某个会话是否打开的方法是查看正在运行的进程——在 Linux 上，通过检查 <code>/proc/*/cmdline</code>。如果命令行包含 <code>--resume &lt;uuid&gt;</code>，匹配是精确且确定的。如果没有，最近修改的会话会被标记为"可能已打开"——对不确定性保持透明，而不是假装拥有并不存在的确定性。</p>
+
+<hr>
+
+<h2>阶段三 — 异步转折点</h2>
+<p class="fase-intro">既然已经走到这一步，为什么要局限于同步请求：通过 <em>task</em> 命令我想启动一个长时间计算，同时继续进行其他交互式会话。</p>
+
+<div class="chat">
+  <span class="chat-label">对话</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">我需要进度跟踪——我想在 Claude 完成当前会话中的长时间任务后立即收到通知。</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">架构变更：subprocess.run() → asyncio.create_subprocess_exec()。机器人保持响应性，任务完成时发送推送通知。</div>
+  </div>
+</div>
+
+<p>这是整个项目中最重大的一次重新思考。</p>
+
+<p>最初的原型使用 <code>subprocess.run()</code>——本质上是阻塞的。当 Claude 在处理时，机器人是静默的：无法回复其他消息，无法接收 <code>/cancel</code>，什么都做不了。对于简短的响应这不明显。但对于耗时数分钟的任务来说，这是一个严重的问题。</p>
+
+<p>迁移到 <code>asyncio.create_subprocess_exec()</code> 改变了系统的本质。机器人变成了真正的异步：你可以启动一个长时间任务，继续正常使用机器人，当 Claude 完成时收到推送通知——消息中包含完整输出。你还可以并行启动多个任务，监控它们，并取消特定的某一个。</p>
+
+<p>但也需要能够中断正在运行的长时间任务，以防你意识到提示词中遗漏了重要信息。取消操作是一个精细的细节：需要同时终止操作系统进程（<code>proc.kill()</code>）和 asyncio 任务（<code>asyncio_task.cancel()</code>），并处理错误传播，确保用户即使在取消时也能收到确认通知。</p>
+
+<p>回顾来看，正是这个阶段将机器人从"有用的小工具"转变为"正经的工具"。</p>
+
+<hr>
+
+<h2>阶段四 — 让命令有声音</h2>
+
+<div class="chat">
+  <span class="chat-label">对话</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">我需要一种方式在语音消息中调用 /.. 命令，而不仅仅是作为自由提示词。</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">我将使用 Claude Haiku 作为分类器：转录 → 结构化 JSON → 分发到与文字命令相同的处理器。延迟约 0.5 秒。</div>
+  </div>
+</div>
+
+<p>语音消息作为自由提示词运行良好——你说些什么，Claude 就回复。但很快我想要更多：说"给我看正在运行的任务"，然后让机器人理解我是在请求列表，而不是将这句话作为提示词传递给 Claude Code。</p>
+
+<p>第一反应是构建一个关键词匹配系统。"任务" → <code>/tasks</code>，"取消" → <code>/cancel</code>。容易实现，无法维护，天生脆弱。</p>
+
+<p>最优雅的解决方案是使用 LLM 来分类意图——具体来说是 Claude Haiku，最快且最经济的模型。一次 API 调用，一个描述可用命令的系统提示词，模型就会返回结构化 JSON，指示要运行哪个命令及其参数。大约半秒的额外延迟，零维护成本。</p>
+
+<p>让我印象深刻的是这个选择中的一个微妙的讽刺：我在用一个 AI 来解释语音命令，然后将这些命令传递给另一个 AI。但它确实有效——即使面对模糊的短语和口语化的表达也能很好地工作。</p>
+
+<p>一个重要的设计细节：如果 Haiku 调用因任何原因失败（速率限制、网络错误），机器人不会阻塞。转录文本会直接作为自由提示词传递给 Claude Code。从用户角度来看完全无感，服务持续运行。</p>
+
+<hr>
+
+<h2>阶段五 — 等待中的沉默</h2>
+<p class="fase-intro">到目前为止一切顺利，但一切感觉太<em>疏离</em>了——在助手处理过程中我没有任何反馈。</p>
+
+<div class="chat">
+  <span class="chat-label">对话</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">你之前提到了 JSON 流式输出——具体是什么意思？</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">claude --output-format stream-json 会实时发出 JSONL 事件。我每 N 秒编辑一次 Telegram 消息，显示部分文本加光标 ▌。</div>
+  </div>
+</div>
+
+<p>任何等待系统的设计中都存在一种张力：用户不知道是正在处理还是出了问题。一个冻结两分钟的"⏳ Claude 正在处理..."会让人焦虑。</p>
+
+<p>Claude Code 支持 <code>--output-format stream-json</code> 标志，在处理过程中实时发出 JSONL 事件，而不是等到完成。Telegram 不支持逐字符流式输出，但允许编辑已发送的消息。解决方案是将两者结合：从 JSON 事件中累积部分文本，每两秒用当前文本和 ▌ 光标更新 Telegram 消息。</p>
+
+<p>节流是必要的，以避免超过 Telegram 的速率限制（每条消息每分钟约 20 次编辑），但事实证明这也是一个用户体验的改进：每两秒更新一次是可读的，每 200 毫秒更新一次则会令人眩晕。</p>
+
+<p>一个我很喜欢的小细节：部分文本末尾的 ▌ 光标。它在技术上没有什么信息量——只是说"还在写"——但它把等待从焦虑变成了期待。</p>
+
+<div class="callout">
+  <strong>技术说明</strong>
+  后台任务（<code>/task</code>）故意使用非流式模式。你等待的是最终通知——并不是在实时盯着屏幕。
+</div>
+
+<hr>
+
+<h2>阶段六 + 七 — 附件与设置：决定体验的细节</h2>
+<p class="fase-intro">到了这个阶段，我开始需要<em>查看</em>一些被机器人修改或生成的文件——我需要一种方式在智能手机上打开它们。</p>
+
+<div class="chat">
+  <span class="chat-label">对话</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">一个 /sendme 命令用于以附件形式接收文件会很有用。而且我想在启动命令之前设置当前目录和流式输出频率。</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">两个新增功能：/sendme 支持多文件自动 ZIP 压缩 + 声明式 SETTINGS_SCHEMA 配合 /set 和 /settings。新增一个参数 = 字典里加一行。</div>
+  </div>
+</div>
+
+<p>这两个阶段源自使用中产生的实际需求。</p>
+
+<p>第一个需求：我经常让 Claude 生成文件、报告或脚本——然后发现没有简便的方式从智能手机上获取它们。附件命令比预期的要丰富：单个文件直接作为附件发送，但如果使用了通配符模式（<code>src/*.py</code>），机器人会在内存中创建一个 ZIP 文件——不在磁盘上留下临时文件——并作为压缩包发送。自动的文件名清理是一个实用的细节：<code>src/*.py</code> 变成 <code>src_py.zip</code>，特殊字符一并处理。</p>
+
+<p>第二个需求：我想在不编辑 <code>.env</code> 文件和重启进程的情况下配置机器人的行为。工作目录、流式输出频率、超时时间、转录语言。这里的设计选择是使用声明式 schema：添加一个新参数只需要在字典中增加一个条目，所有的验证逻辑、面板渲染和默认值重置都会自动处理。这种决策——投资于一个抽象层而不是复制粘贴——在第二次修改时就能收回成本。</p>
+
+<hr>
+
+<h2>阶段八 — 看不见的安全</h2>
+
+<div class="chat">
+  <span class="chat-label">对话</span>
+  <div class="bubble user">
+    <div class="bubble-avatar">👤</div>
+    <div class="bubble-text">让我们给转录添加安全检查：如果包含危险术语，机器人在传递给 Claude 之前先请求确认。</div>
+  </div>
+  <div class="bubble bot">
+    <div class="bubble-avatar">🤖</div>
+    <div class="bubble-text">6 个风险类别的正则表达式模式。如果触发，我显示 Telegram 内联按钮 ✅/❌。有效载荷存储在 user_data 中，直到用户点击。</div>
+  </div>
+</div>
+
+<p>最后一个问题很微妙。文字消息是我有意识地输入的——很难意外地写出"删除所有内容"。但语音消息不同：Whisper 可能会意外转录出不正确的内容，或者我可能在嘈杂环境中说话导致不可预测的结果。考虑到 Claude Code 拥有文件系统的访问权限，一个破坏性命令的转录错误可能造成真实的损害。</p>
+
+<p>解决方案是对风险模式类别进行过滤——文件删除、特权命令、意外的网络操作、任意 shell 执行、凭证访问——当检测到这些模式之一时，通过 Telegram 内联按钮发出明确的确认请求。</p>
+
+<p>让我信服的设计方面是，确认在执行<em>之前</em>到达，并且转录内容是可见的。用户可以看到机器人理解了什么，然后决定是否继续。这不是障碍——而是透明。</p>
+
+<p>有效载荷（转录文本 + 已分类的意图）被临时存储，按钮点击时检索。无需重新处理，无需额外的 API 调用。</p>
+
+<hr>
+
+<h2>我学到了什么</h2>
+
+<p>回顾这八个阶段，有些事情现在比开始时看得更清楚了。</p>
+
+<p><strong>从一个能工作的东西开始，比从一个完整的东西开始更重要。</strong>第一天的原型简单得近乎可笑。但它<em>能用</em>，那种直接的经验以一种任何前期规划都无法做到的方式指导了每一个后续决策。</p>
+
+<p><strong>渠道和内容同等重要。</strong>选择 Telegram 不是审美偏好——它同时解决了三个问题：身份认证、无需网络配置的传输，以及原生音频支持。选错渠道会让其他一切都变得困难得多。</p>
+
+<p><strong>最好的功能源于真实的需求——或真实的挫败感。</strong>实时流式输出源于等待时令人尴尬的沉默。会话管理源于不同项目之间的混乱。安全检查源于对语音作为一种比文字更不可控的输入方式的认识。在使用系统之前，这些需求都不是显而易见的。</p>
+
+<p><strong>用 AI 构建工具来控制另一个 AI，这有一种循环且富有成效的特质。</strong>所有代码都是在与 Claude Code 的对话中开发的，而 Claude Code 运行在我们正在扩展的同一个会话中。这其中有一种反馈循环，加速了决策并迫使你精确地表达你想要什么。</p>
+
+<div class="conclusion">
+  <h2>总结</h2>
+  <p>在由一个单一挫败感引发的八次对话中，我们构建了一个我原本没有计划构建的东西。最终结果是一个系统，它将终端工具变得随处可用——支持文字、语音、附件、持久化会话、实时更新和合理的安全级别。</p>
+  <p style="margin-top:16px;">然而，最有趣的不是最终的系统。而是过程：每次迭代如何揭示下一个问题，出于实际原因做出的架构选择事后如何证明是正确的，以及与 AI 代理的协作——在我们构建工具的同一个会话中——如何改变了我思考问题的方式。</p>
+</div>
+
+<div class="epilogue">
+  <p>从那以后就<strong>很难停下来</strong>了。那天晚上我在沙发上继续开发。现在我的助手还具备：</p>
+  <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 20px;">
+    <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.18);border-radius:8px;padding:12px 16px;">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px;">🔊</span>
+      <div>
+        <div style="color:var(--white);font-weight:500;font-size:14.5px;">语音合成</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px;">如果提示词是语音的，机器人的回复也会以语音消息的形式到达</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.18);border-radius:8px;padding:12px 16px;">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px;">🖥️</span>
+      <div>
+        <div style="color:var(--white);font-weight:500;font-size:14.5px;">按需截屏</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px;">发送全屏或指定窗口的截图</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.18);border-radius:8px;padding:12px 16px;">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px;">📹</span>
+      <div>
+        <div style="color:var(--white);font-weight:500;font-size:14.5px;">摄像头</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px;">使用电脑摄像头录制视频并发送给我</div>
+      </div>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:15px;margin-bottom:0;">一些实用命令为了方便已经硬编码了，但实际上只要提示词合适，我就能利用 Claude Code CLI 的所有能力。</p>
+</div>
+
+</main>
+
+<footer>
+  <p>使用 Claude Code 构建 · Donato Mallozzi · 2026</p>
+</footer>
+
+</body>
+</html>

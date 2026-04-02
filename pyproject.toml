@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vibeaway"
+version = "1.0.0"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "python-telegram-bot[job-queue]>=21",
+    "python-dotenv>=1.0",
+    "openai>=1.30",
+    "Pillow>=10.0",
+]
+
+[project.optional-dependencies]
+local-whisper = ["faster-whisper>=1.0"]
+groq-whisper = ["groq>=0.4"]
+tts = ["gTTS>=2.3", "langdetect>=1.0.9"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23"]
+
+[project.scripts]
+vibeaway = "vibeaway.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+vibeaway = ["locales/*.json"]
